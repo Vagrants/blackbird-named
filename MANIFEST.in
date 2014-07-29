@@ -1,0 +1,5 @@
+include named.py
+include named.cfg
+include README.md
+include CHANGELOG.md
+include PROJECT.txt
