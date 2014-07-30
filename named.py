@@ -2,7 +2,7 @@
 # -*- encoding: utf-8 -*-
 # pylint: disable=C0111,C0301,R0903,C0103,F0401
 
-__VERSION__ = '0.1.0'
+__VERSION__ = '0.1.1'
 
 try:
     import simplejson as json
@@ -64,6 +64,9 @@ class ConcreteJob(base.JobBase):
 
         # get statistics from statistics-channels
         self._statistics()
+
+        # get rndc status information
+        self._rndc()
 
     def build_discovery_items(self):
         """
@@ -139,7 +142,7 @@ class ConcreteJob(base.JobBase):
         try:
             response = urllib2.urlopen(req)
             return response.read()
-        except URLError, e:
+        except urllib2.URLError, e:
             self.logger.debug(
                 'can not open "{0}", failed to get statistics'
                 ''.format(url)
@@ -187,18 +190,18 @@ class ConcreteJob(base.JobBase):
 
             # send zone name and serial
             for _zone in _dict[_view]['zone']:
-                item_key = 'bind.statistics.zone.serial[{0}]'.format(_zone)
+                item_key = 'named.statistics.zone.serial[{0}]'.format(_zone)
                 self._enqueue(item_key, _dict[_view]['zone'][_zone])
 
             # send resstat
             for _res in _dict[_view]['resstat']:
-                item_key = ('bind.statistics.resstat[{0},{1}]'
+                item_key = ('named.statistics.resstat[{0},{1}]'
                             ''.format(_view, _res))
                 self._enqueue(item_key, _dict[_view]['resstat'][_res])
 
             # send cache rrset
             for _rr in _dict[_view]['cache']:
-                item_key = ('bind.statistics.cache[{0},{1}]'
+                item_key = ('named.statistics.cache[{0},{1}]'
                             ''.format(_view, _rr))
                 self._enqueue(item_key, _dict[_view]['cache'][_rr])
 
@@ -207,11 +210,11 @@ class ConcreteJob(base.JobBase):
         root = data['isc']['bind']['statistics']['taskmgr']['thread-model']
 
         self._enqueue(
-            'bind.statistics.taskmgr[worker-threads]',
+            'named.statistics.taskmgr[worker-threads]',
             root['worker-threads']
         )
         self._enqueue(
-            'bind.statistics.taskmgr[tasks-running]',
+            'named.statistics.taskmgr[tasks-running]',
             root['tasks-running']
         )
 
@@ -223,11 +226,11 @@ class ConcreteJob(base.JobBase):
 
         # boot time and current time
         self._enqueue(
-            'bind.statistics.server[boot-time]',
+            'named.statistics.server[boot-time]',
             root['boot-time']
         )
         self._enqueue(
-            'bind.statistics.server[current-time]',
+            'named.statistics.server[current-time]',
             root['current-time']
         )
 
@@ -251,7 +254,7 @@ class ConcreteJob(base.JobBase):
 
         # send opcode
         for _opcode in _dict['opcode']:
-            item_key = 'bind.statistics.server.opcode[{0}]'.format(_opcode)
+            item_key = 'named.statistics.server.opcode[{0}]'.format(_opcode)
             self._enqueue(item_key, _dict['opcode'][_opcode])
 
         # queries-in
@@ -272,22 +275,22 @@ class ConcreteJob(base.JobBase):
 
         # send queries-in
         for _qi in _dict['rdtype']:
-            item_key = 'bind.statistics.server.queries-in[{0}]'.format(_qi)
+            item_key = 'named.statistics.server.queries-in[{0}]'.format(_qi)
             self._enqueue(item_key, _dict['rdtype'][_qi])
 
         # nsstat
         for ns in root['nsstat']:
-            item_key = 'bind.statistics.server.nsstat[{0}]'.format(ns['name'])
+            item_key = 'named.statistics.server.nsstat[{0}]'.format(ns['name'])
             self._enqueue(item_key, ns['counter'])
 
         # zonestat
         for zs in root['zonestat']:
-            item_key = 'bind.statistics.server.zonestat[{0}]'.format(zs['name'])
+            item_key = 'named.statistics.server.zonestat[{0}]'.format(zs['name'])
             self._enqueue(item_key, zs['counter'])
 
         # sockstat
         for ss in root['sockstat']:
-            item_key = 'bind.statistics.server.sockstat[{0}]'.format(ss['name'])
+            item_key = 'named.statistics.server.sockstat[{0}]'.format(ss['name'])
             self._enqueue(item_key, ss['counter'])
 
     def _memory_info(self, data):
@@ -306,12 +309,12 @@ class ConcreteJob(base.JobBase):
 
         # send context inuse
         for _context in _dict['context']:
-            item_key = 'bind.statistics.memory.inuse[{0}]'.format(_context)
+            item_key = 'named.statistics.memory.inuse[{0}]'.format(_context)
             self._enqueue(item_key, _dict['context'][_context])
 
         # summary
         for _arr in ['TotalUse', 'InUse', 'BlockSize', 'ContextSize', 'Lost']:
-            item_key = 'bind.statistics.memory.summary[{0}]'.format(_arr)
+            item_key = 'named.statistics.memory.summary[{0}]'.format(_arr)
             self._enqueue(item_key, root['summary'][_arr])
 
     def _lld_view_zone(self, data):
@@ -340,6 +343,81 @@ class ConcreteJob(base.JobBase):
                 )
                 self.queue.put(item, block=False)
 
+    def _rndc(self):
+        """
+        # rndc status
+        version: 9.8
+        CPUs found: 2
+        worker threads: 2
+        number of zones: 1
+        debug level: 0
+        xfers running: 0
+        xfers deferred: 0
+        soa queries in progress: 0
+        query logging is OFF
+        recursive clients: 0/0/1000
+        tcp clients: 0/100
+        server is up and running
+        """
+
+        rndc = self.options['rndc_path']
+
+        # nothing to do
+        if rndc is None:
+            return
+
+        # rndc status
+        cmd = [rndc, 'status']
+
+        try:
+            output = subprocess.Popen(cmd,
+                                      stdout=subprocess.PIPE,
+                                      stderr=subprocess.STDOUT,
+                                     )
+
+            for _line in output.stdout.readlines():
+                line = _line.rstrip()
+
+                # something wrong
+                if re.search(r'error', line):
+                    self.logger.error('rndc exec error [{0}]'.format(line))
+                    return
+
+                try:
+                    _key, _value = line.split(':')
+                    value = _value.lstrip()
+                    if _key == 'recursive clients':
+                        used, soft, max = value.split('/')
+                        self._enqueue('named.rndc[recursive_clients_used]', used)
+                        self._enqueue('named.rndc[recursive_clients_soft]', soft)
+                        self._enqueue('named.rndc[recursive_clients_max]', max)
+                    elif _key == 'tcp clients':
+                        tused, tmax = value.split('/')
+                        self._enqueue('named.rndc[tcp_clients_used]', tused)
+                        self._enqueue('named.rndc[tcp_clients_max]', tmax)
+                    else:
+                        self._enqueue(
+                            'named.rndc[{0}]'.format(_key.replace(' ', '_')),
+                            value
+                        )
+
+                except ValueError:
+                    # query logging
+                    _m = re.match(r'^query logging is (\w+)', line)
+                    if _m:
+                        self._enqueue('named.rndc[query_logging]', _m.group(1))
+                        continue
+
+                    # server is up and running
+                    _m = re.match(r'^server is (.*)', line)
+                    if _m:
+                        self._enqueue('named.rndc[server_is]', _m.group(1))
+                        continue
+
+        except OSError, IOError:
+            self.logger.error(
+                'can not exec "{0}"'.format(' '.join(cmd))
+            )
 
 class NamedItem(base.ItemBase):
     """
@@ -379,7 +457,7 @@ class Validator(base.ValidatorBase):
         """
         self.__spec = (
             "[{0}]".format(__name__),
-            "rndc_path=string(default='/usr/sbin/rndc')",
+            "rndc_path=string(default=None)",
             "statistics_host=string(default='127.0.0.1')",
             "statistics_port=integer(0, 65535, default=5353)",
             "hostname=string(default={0})".format(self.detect_hostname()),
