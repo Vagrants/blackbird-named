@@ -243,9 +243,8 @@ class ConcreteJob(base.JobBase):
         if not root['requests'] is None:
             if isinstance(root['requests']['opcode'], list):
                 for _op in root['requests']['opcode']:
-                    self.logger.debug(type(_op))
                     opcode_name = _op['name']
-                    opcode_counter = _op['countder']
+                    opcode_counter = _op['counter']
                     _dict['opcode'][opcode_name] = opcode_counter
             else:
                 opcode_name = root['requests']['opcode']['name']
@@ -262,7 +261,8 @@ class ConcreteJob(base.JobBase):
         # initialize
         for RD in RDTYPE:
             _dict['rdtype'][RD] = 0
-        if hasattr(root['queries-in'], 'rdtype'):
+
+        if not root['queries-in'] is None:
             if isinstance(root['queries-in']['rdtype'], list):
                 for _rd in root['queries-in']['rdtype']:
                     rdtype_name = _rd['name']
