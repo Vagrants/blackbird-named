@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <zabbix_export>
     <version>2.0</version>
-    <date>2014-07-31T04:20:08Z</date>
+    <date>2014-07-31T08:22:28Z</date>
     <groups>
         <group>
             <name>Templates</name>
@@ -2561,7 +2561,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>proc.mem[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}]</key>
+                    <key>proc.mem[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,]</key>
                     <delay>60</delay>
                     <history>7</history>
                     <trends>365</trends>
@@ -2603,7 +2603,7 @@
                     <snmp_community/>
                     <multiplier>0</multiplier>
                     <snmp_oid/>
-                    <key>proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}]</key>
+                    <key>proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,]</key>
                     <delay>60</delay>
                     <history>7</history>
                     <trends>365</trends>
@@ -9762,7 +9762,7 @@
             <dependencies>
                 <dependency>
                     <name>Process - {$ITM_NAMED_PROG} might be down!!!</name>
-                    <expression>{_Named_9.8:proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}].last()}&lt;1</expression>
+                    <expression>{_Named_9.8:proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,].last()}&lt;1</expression>
                 </dependency>
             </dependencies>
         </trigger>
@@ -9777,7 +9777,7 @@
             <dependencies>
                 <dependency>
                     <name>Process - {$ITM_NAMED_PROG} might be down!!!</name>
-                    <expression>{_Named_9.8:proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}].last()}&lt;1</expression>
+                    <expression>{_Named_9.8:proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,].last()}&lt;1</expression>
                 </dependency>
             </dependencies>
         </trigger>
@@ -9792,7 +9792,7 @@
             <dependencies>
                 <dependency>
                     <name>Process - {$ITM_NAMED_PROG} might be down!!!</name>
-                    <expression>{_Named_9.8:proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}].last()}&lt;1</expression>
+                    <expression>{_Named_9.8:proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,].last()}&lt;1</expression>
                 </dependency>
             </dependencies>
         </trigger>
@@ -9807,12 +9807,12 @@
             <dependencies>
                 <dependency>
                     <name>Process - {$ITM_NAMED_PROG} might be down!!!</name>
-                    <expression>{_Named_9.8:proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}].last()}&lt;1</expression>
+                    <expression>{_Named_9.8:proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,].last()}&lt;1</expression>
                 </dependency>
             </dependencies>
         </trigger>
         <trigger>
-            <expression>{_Named_9.8:proc.num[python,{$ITM_NAMED_USER},,{$ITM_NAMED_PROG}].last()}&lt;1</expression>
+            <expression>{_Named_9.8:proc.num[{$ITM_NAMED_PROG},{$ITM_NAMED_USER},,].last()}&lt;1</expression>
             <name>Process - {$ITM_NAMED_PROG} might be down!!!</name>
             <url/>
             <status>0</status>
