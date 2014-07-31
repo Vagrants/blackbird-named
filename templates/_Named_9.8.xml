@@ -9731,7 +9731,7 @@
                 </macro>
                 <macro>
                     <macro>{$ITM_NAMED_PROG}</macro>
-                    <value>/usr/sbin/named</value>
+                    <value>named</value>
                 </macro>
                 <macro>
                     <macro>{$ITM_NAMED_RECURSIVE_LIMIT_RATE}</macro>

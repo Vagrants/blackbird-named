@@ -13,7 +13,7 @@ def read(fname):
 
 setup(
     name='blackbird-named',
-    version='0.1.1',
+    version='0.1.2',
     description=(
         'get named information.'
     ),
