@@ -9752,7 +9752,7 @@
     </templates>
     <triggers>
         <trigger>
-            <expression>{_Named_9.8:named.rndc.recursive.limit.last()}&gt;{_Named_9.8:named.rndc[recursive_clients_used].last()}</expression>
+            <expression>{_Named_9.8:named.rndc.recursive.limit.last()}&lt;{_Named_9.8:named.rndc[recursive_clients_used].last()}</expression>
             <name>Named - Recursive clients are reached to upper limit</name>
             <url/>
             <status>0</status>
@@ -9767,7 +9767,7 @@
             </dependencies>
         </trigger>
         <trigger>
-            <expression>{_Named_9.8:named.rndc.tcp.clients.limit.last()}&gt;{_Named_9.8:named.rndc[tcp_clients_used].last()}</expression>
+            <expression>{_Named_9.8:named.rndc.tcp.clients.limit.last()}&lt;{_Named_9.8:named.rndc[tcp_clients_used].last()}</expression>
             <name>Named - TCP clients are reached to upper limit</name>
             <url/>
             <status>0</status>
