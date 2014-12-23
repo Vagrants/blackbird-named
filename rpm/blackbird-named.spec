@@ -48,11 +48,11 @@ rm -rf $RPM_BUILD_ROOT
 %defattr(-,root,root)
 
 %changelog
-* Thu Jul 31 2014 makochi <makocchi@gmail.com> - 0.1.2-1
+* Thu Jul 31 2014 makocchi <makocchi@gmail.com> - 0.1.2-1
 - revise queries-in section
 
-* Tue Jul 29 2014 makochi <makocchi@gmail.com> - 0.1.1-1
+* Tue Jul 29 2014 makocchi <makocchi@gmail.com> - 0.1.1-1
 - add rndc status
 
-* Mon Jul 28 2014 makochi <makocchi@gmail.com> - 0.1.0-1
+* Mon Jul 28 2014 makocchi <makocchi@gmail.com> - 0.1.0-1
 - first package
